@@ -13,18 +13,18 @@ function App() {
          const playRef = useRef(null);
          const videoRef = useRef(null);
 
-        const adPlaybackRef = useRef(null);
-        const [adsLoaded, setAdsLoaded] = useState(false);
-        var adContainer;
-        var adDisplayContainer;
-        var adsLoader;
-        var adsManager;
-        let videoElement;
+          const adPlaybackRef = useRef(null);
+          const [adsLoaded, setAdsLoaded] = useState(false);
+          var adContainer;
+          var adDisplayContainer;
+          var adsLoader;
+          var adsManager;
+          let videoElement;
         
-          useEffect(() => {
-              videoElement = videoRef.current;
-              initializeIMA();
-            }, []);
+        useEffect(() => {
+            videoElement = videoRef.current;
+            initializeIMA();
+          }, []);
 
 
 
@@ -115,8 +115,8 @@ function App() {
                var width = videoElement?.clientWidth;
                var height = videoElement?.clientHeight;
               try {
-                adsManager.init(width, height, google.ima.ViewMode.NORMAL);
-                adsManager.start();
+                adsManager?.init(width, height, google.ima.ViewMode.NORMAL);
+                adsManager?.start();
               } catch (adError) {
                 console.log(adError,"errr")
                 // Play the video without ads, if an error occurs
@@ -164,38 +164,55 @@ function App() {
             return (
                   <div className='w-full h-full'>
                       <button className='text-black' onClick={handleVideoPlay}>click</button>
-                      <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}   >
+                      <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}  autoPlay  >
                             <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
-                                  <Player.Video title="Live stream" className="h-full w-full" ref={videoRef}  />
+                                  <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} 
+                                          //  onProgress={(e) => {
+                                          //   // we fake an error here every time there is progress
+                                
+                                          //   setTimeout(() => {
+                                          //     e.target.dispatchEvent(new Event("error"));
+                                          //   }, 3000);
+                                          // }}
+                                   />
 
                                   <Player.Controls className="flex items-center justify-center">
 
-                                    <Player.PlayPauseTrigger className="w-10 h-10 hover:scale-105 flex-shrink-0"
+                                         <Player.PlayPauseTrigger className="w-10 h-10 hover:scale-105 flex-shrink-0"
                                           // ref={playRef}
                                       
-                                        >
+                                             >
 
-                                          <Player.PlayingIndicator asChild matcher={false}>
-                                            <PlayIcon className="w-full h-full" />
-                                          </Player.PlayingIndicator>
+                                                <Player.PlayingIndicator asChild matcher={false}>
+                                                  <PlayIcon className="w-full h-full text-white" />
+                                                </Player.PlayingIndicator>
 
-                                          <Player.PlayingIndicator asChild>
-                                            <PauseIcon className="w-full h-full" />
-                                          </Player.PlayingIndicator>
+                                                <Player.PlayingIndicator asChild>
+                                                  <PauseIcon className="w-full h-full text-white" />
+                                                </Player.PlayingIndicator>
 
-
-                                    </Player.PlayPauseTrigger>
-
+ 
+                                           </Player.PlayPauseTrigger>
 
                                   </Player.Controls>
-                                  <div id="ad-container" ref={adPlaybackRef}  className='absolute top-0 w-full h-full'></div>
+                                      <Player.LoadingIndicator
+                                                className='flex w-full h-full justify-center items-center bg-black text-white font-semibold'
+                                                
+                                              >
+                                                Loading...
+                                     </Player.LoadingIndicator>
+                                      <Player.ErrorIndicator
+                                        matcher="all"
+                                        className='flex w-full h-full justify-center items-center bg-black text-white font-semibold'
+                                      >
+                                        An error occurred. Trying to resume playback...
+                                      </Player.ErrorIndicator>
+
+                                  <div id="ad-container" ref={adPlaybackRef}  className='absolute top-0 '></div>
 
 
                             </Player.Container>
-                             {/* <video ref={videoRef} id="video-element">
-                                <source src="https://storage.googleapis.com/interactive-media-ads/media/android.mp4" type="video/mp4" />
-                                  <source src="https://storage.googleapis.com/interactive-media-ads/media/android.webm" type="video/webm" />
-                             </video> */}
+
                       </Player.Root>
 
 
