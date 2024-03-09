@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { PauseIcon, PlayIcon } from "@livepeer/react/assets";
-import { getSrc } from "@livepeer/react/external";
+import { getSrc, } from "@livepeer/react/external";
 import * as Player from "@livepeer/react/player";
 
 
@@ -33,8 +33,10 @@ function App() {
               // Instantiate the AdsManager from the adsLoader response and pass it the video element
               console.log("loaded")
               setAdsLoaded(true);
+              var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+              adsRenderingSettings.enablePreloading = true;
               adsManager = adsManagerLoadedEvent.getAdsManager(
-                  videoElement);
+                  videoElement,adsRenderingSettings);
     
                   console.log(adsManager,"mangerrrr")
     
@@ -163,7 +165,7 @@ function App() {
             
             return (
                   <div className='w-full h-full'>
-                      <button className='text-black' onClick={handleVideoPlay}>click</button>
+                      <button className='text-black' onClick={handleVideoPlay}>Click To Play add</button>
                       <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}  autoPlay  >
                             <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
                                   <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} 
@@ -194,10 +196,14 @@ function App() {
  
                                            </Player.PlayPauseTrigger>
 
-                                  </Player.Controls>
-                                      <Player.LoadingIndicator
+                                     </Player.Controls>
+                                           <Player.LoadingIndicator
                                                 className='flex w-full h-full justify-center items-center bg-black text-white font-semibold'
-                                                
+                                                   onLoad={(e) => {
+                                            // we fake an error here every time there is progress
+                                                     console.log(e,"event ii")
+                                          
+                                                      }}
                                               >
                                                 Loading...
                                      </Player.LoadingIndicator>
@@ -209,6 +215,13 @@ function App() {
                                       </Player.ErrorIndicator>
 
                                   <div id="ad-container" ref={adPlaybackRef}  className='absolute top-0 '></div>
+
+                                  {/* <div className='absolute top-0 '>
+                                     <PlayIcon className="w-10 h-10 text-white" />
+                                      
+                                  </div> */}
+
+
 
 
                             </Player.Container>
