@@ -12,6 +12,8 @@ import * as Player from "@livepeer/react/player";
 function App() {
          const playRef = useRef(null);
          const videoRef = useRef(null);
+         const [adevent,setEvent]=useState()
+         const [container,setContainer]=useState()
 
           const adPlaybackRef = useRef(null);
           const [adsLoaded, setAdsLoaded] = useState(false);
@@ -19,7 +21,8 @@ function App() {
           var adDisplayContainer;
           var adsLoader;
           var adsManager;
-          let videoElement;
+          var videoElement;
+     
         
         useEffect(() => {
             videoElement = videoRef.current;
@@ -31,25 +34,32 @@ function App() {
          
             function onAdsManagerLoaded(adsManagerLoadedEvent) {
               // Instantiate the AdsManager from the adsLoader response and pass it the video element
-              console.log("loaded")
+            
               setAdsLoaded(true);
+              setEvent(adsManagerLoadedEvent)
+             
               var adsRenderingSettings = new google.ima.AdsRenderingSettings();
               adsRenderingSettings.enablePreloading = true;
               adsManager = adsManagerLoadedEvent.getAdsManager(
                   videoElement,adsRenderingSettings);
+        ;
     
                   console.log(adsManager,"mangerrrr")
     
               adsManager.addEventListener(
                 google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
                 onContentPauseRequested);
-            adsManager.addEventListener(
+              adsManager.addEventListener(
                 google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
                 onContentResumeRequested);
     
                 adsManager.addEventListener(
                   google.ima.AdEvent.Type.LOADED,
-                   onAdLoaded);
+                 onAdLoaded);
+
+                 adsManager.addEventListener(
+                  google.ima.AdEvent.Type.AD_ERROR,
+                  onAdError);
             }
             
             function onAdError(adErrorEvent) {
@@ -68,12 +78,14 @@ function App() {
          
             adDisplayContainer = new google.ima.AdDisplayContainer(adContainer,videoElement);
             console.log(adDisplayContainer,"display")
+            setContainer(adDisplayContainer)
             adsLoader = new google.ima.AdsLoader(adDisplayContainer);
   
               adsLoader.addEventListener(
                 google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
                 onAdsManagerLoaded,
                 false);
+          
               adsLoader.addEventListener(
                 google.ima.AdErrorEvent.Type.AD_ERROR,
                 onAdError,
@@ -85,7 +97,7 @@ function App() {
             });
             var adsRequest = new google.ima.AdsRequest();
   
-            console.log(adsRequest,"reeee")
+          
              adsRequest.adTagUrl ="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
           
 
@@ -94,10 +106,13 @@ function App() {
             adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
             adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
             console.log(adsRequest,"after reeee")
+
+
+            // adsRequest.setAdWillAutoPlay(true);
+            // adsRequest.setAdWillPlayMuted(false);
       
             adsLoader.requestAds(adsRequest);
         
-            console.log(adsLoader,"after")
           
   
   
@@ -109,21 +124,25 @@ function App() {
 
            const loadAds = () => {
             videoElement = videoRef.current;
-            console.log("loading ads");
-              // Initialize the container. Must be done via a user action on mobile devices.
+          
+            const manager = adevent.getAdsManager(
+                videoElement);
+    
                  videoElement?.load();
-                 adDisplayContainer?.initialize();
-  
+                
+                 container.initialize();
                var width = videoElement?.clientWidth;
                var height = videoElement?.clientHeight;
               try {
-                adsManager?.init(width, height, google.ima.ViewMode.NORMAL);
-                adsManager?.start();
+                manager.init(width, height, google.ima.ViewMode.NORMAL);
+             
+                manager.start();
+                console.log("loading ads 22");
               } catch (adError) {
-                console.log(adError,"errr")
-                // Play the video without ads, if an error occurs
-                console.log("AdsManager could not be started");
-                videoElement?.play();
+                       console.log(adError,"errr")
+                   // Play the video without ads, if an error occurs
+                       console.log("AdsManager could not be started");
+                       videoElement?.play();
               }
   
               setAdsLoaded(false);
@@ -153,7 +172,7 @@ function App() {
   
           function onAdLoaded(adEvent) {
             var ad = adEvent.getAd();
-            console.log(ad,"AD>>>>>>")
+          
             if (!ad.isLinear()) {
               videoElement?.play();
             }
