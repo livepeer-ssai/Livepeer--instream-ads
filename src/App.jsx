@@ -5,6 +5,10 @@ import './App.css'
 import { PauseIcon, PlayIcon } from "@livepeer/react/assets";
 import { getSrc, } from "@livepeer/react/external";
 import * as Player from "@livepeer/react/player";
+import {
+  useMediaContext,
+  useStore,
+} from "@livepeer/react/player";
 
 
 
@@ -14,9 +18,11 @@ function App() {
          const videoRef = useRef(null);
          const [adevent,setEvent]=useState()
          const [container,setContainer]=useState()
+         const [canPlay,setCanPlay]=useState(false)
 
           const adPlaybackRef = useRef(null);
           const [adsLoaded, setAdsLoaded] = useState(false);
+          const [adsCompleted, setAdsCompleted] = useState(false);
           var adContainer;
           var adDisplayContainer;
           var adsLoader;
@@ -56,6 +62,8 @@ function App() {
                 adsManager.addEventListener(
                   google.ima.AdEvent.Type.LOADED,
                  onAdLoaded);
+                 adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE,()=>setAdsLoaded(false) || setAdsCompleted(true));
+
 
                  adsManager.addEventListener(
                   google.ima.AdEvent.Type.AD_ERROR,
@@ -98,7 +106,7 @@ function App() {
             var adsRequest = new google.ima.AdsRequest();
   
           
-             adsRequest.adTagUrl ="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+             adsRequest.adTagUrl ="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="
           
 
             adsRequest.linearAdSlotWidth = videoElement.clientWidth;
@@ -172,30 +180,32 @@ function App() {
   
           function onAdLoaded(adEvent) {
             var ad = adEvent.getAd();
-          
+            
             if (!ad.isLinear()) {
               videoElement?.play();
             }
           }
   
         
-
+   
+              console.log(canPlay,adsLoaded,"playe")
 
             
             return (
                   <div className='w-full h-full'>
-                      <button className='text-black' onClick={handleVideoPlay}>Click To Play add</button>
                       <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}  autoPlay  >
                             <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
                                   <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} 
-                                          //  onProgress={(e) => {
-                                          //   // we fake an error here every time there is progress
-                                
-                                          //   setTimeout(() => {
-                                          //     e.target.dispatchEvent(new Event("error"));
-                                          //   }, 3000);
-                                          // }}
+                                   
                                    />
+                                    <CurrentSource
+                                        style={{
+                                          position: "absolute",
+                                          left: 20,
+                                          bottom: 20,
+                                        }}
+                                         setCanPlay={setCanPlay}
+                                      />
 
                                   <Player.Controls className="flex items-center justify-center">
 
@@ -233,12 +243,13 @@ function App() {
                                         An error occurred. Trying to resume playback...
                                       </Player.ErrorIndicator>
 
-                                  <div id="ad-container" ref={adPlaybackRef}  className='absolute top-0 '></div>
-
-                                  {/* <div className='absolute top-0 '>
-                                     <PlayIcon className="w-10 h-10 text-white" />
+                                    <div id="ad-container" ref={adPlaybackRef}  className={`absolute top-0 ${adsCompleted&&"hidden"} ` }></div>
+                                      {canPlay&&adsLoaded&&
+                                          <div className='absolute top-0 flex items-center justify-center w-full h-full '>
+                                              <PlayIcon className="w-10 h-10 text-white" onClick={handleVideoPlay}/>
                                       
-                                  </div> */}
+                                              </div>
+                                       }
 
 
 
@@ -252,5 +263,38 @@ function App() {
                   </div>
                 )
 }
+
+
+
+function CurrentSource({
+  style,
+  __scopeMedia,
+  setCanPlay
+}) {
+  const context = useMediaContext("CurrentSource", __scopeMedia);
+
+  const { currentSource } = useStore(context.store, ({ currentSource }) => ({
+    currentSource,
+  }));
+
+  useEffect(()=>{
+    setCanPlay(context.store.getState()?.canPlay)
+  },[context.store.getState()?.canPlay])
+  return currentSource ? (
+    <div style={style}>
+      <span>
+        Playback type:{" "}
+        <span
+          style={{
+            color: "#ffffffe2",
+          }}
+        >
+          {/* {currentSource?.type} */}
+        </span>
+      </span>
+    </div>
+  ) : null;
+}
+
 
 export default App
