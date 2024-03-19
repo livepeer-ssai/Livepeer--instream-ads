@@ -19,6 +19,7 @@ function App() {
          const [adevent,setEvent]=useState()
          const [container,setContainer]=useState()
          const [canPlay,setCanPlay]=useState(false)
+         const [tag,setTag]=useState("")
 
           const adPlaybackRef = useRef(null);
           const [adsLoaded, setAdsLoaded] = useState(false);
@@ -29,17 +30,12 @@ function App() {
           var adsManager;
           var videoElement;
      
-        
-        useEffect(() => {
-            videoElement = videoRef.current;
-            initializeIMA();
-          }, []);
 
 
 
          
             function onAdsManagerLoaded(adsManagerLoadedEvent) {
-              // Instantiate the AdsManager from the adsLoader response and pass it the video element
+            
             
               setAdsLoaded(true);
               setEvent(adsManagerLoadedEvent)
@@ -71,7 +67,7 @@ function App() {
             }
             
             function onAdError(adErrorEvent) {
-              // Handle the error logging.
+        
               console.log(adErrorEvent.getError(),"err");
               if(adsManager) {
                 adsManager.destroy();
@@ -81,6 +77,11 @@ function App() {
 
 
           const initializeIMA = () => {
+            if(tag?.length==0){
+              alert("Enter ad tag")
+              return;
+            }
+            videoElement = videoRef.current;
             console.log("initializing IMA");
             adContainer = adPlaybackRef.current;
          
@@ -106,7 +107,7 @@ function App() {
             var adsRequest = new google.ima.AdsRequest();
   
           
-             adsRequest.adTagUrl ="https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator="
+             adsRequest.adTagUrl =tag
           
 
             adsRequest.linearAdSlotWidth = videoElement.clientWidth;
@@ -115,9 +116,6 @@ function App() {
             adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
             console.log(adsRequest,"after reeee")
 
-
-            // adsRequest.setAdWillAutoPlay(true);
-            // adsRequest.setAdWillPlayMuted(false);
       
             adsLoader.requestAds(adsRequest);
         
@@ -148,7 +146,7 @@ function App() {
                 console.log("loading ads 22");
               } catch (adError) {
                        console.log(adError,"errr")
-                   // Play the video without ads, if an error occurs
+               
                        console.log("AdsManager could not be started");
                        videoElement?.play();
               }
@@ -159,46 +157,63 @@ function App() {
       
   
 
-          const handlePlayButtonClick = () => {
-            console.log("clicked")
-            videoElement?.play();
-            };
-
-          const handleVideoPlay = () => {
-             console.log("playing add")
-              loadAds();
-          };
-  
-  
-          function onContentPauseRequested() {
-            videoElement?.pause();
-          }
-          
-          function onContentResumeRequested() {
-            videoElement?.play();
-             }
-  
-          function onAdLoaded(adEvent) {
-            var ad = adEvent.getAd();
-            
-            if (!ad.isLinear()) {
+            const handlePlayButtonClick = () => {
               videoElement?.play();
-            }
-          }
+              };
+
+            const handleVideoPlay = () => {
+         
+                if(tag?.length==0){
+                  alert("Enter ad tag")
+                  return;
+                  }
+              
+                   loadAds();
+                };
+  
+  
+              function onContentPauseRequested() {
+                videoElement?.pause();
+              }
+              
+              function onContentResumeRequested() {
+                videoElement?.play();
+                }
+      
+              function onAdLoaded(adEvent) {
+                var ad = adEvent.getAd();
+                
+                if (!ad.isLinear()) {
+                  videoElement?.play();
+                }
+              }
   
         
    
-              console.log(canPlay,adsLoaded,"playe")
 
             
             return (
-                  <div className='w-full h-full'>
+                  <div className='w-full h-full flex flex-col py-4 px-10 space-y-10'>
+                        <h5 className='text-2xl font-semibold'>Ads test </h5>
+
+                        <div className='flex flex-col w-1/2 space-y-4'>
+                            <input 
+                               className='border py-2 px-3'
+                               placeholder='Enter ad tag url'
+                               onChange={(e)=>setTag(e.target.value)}
+                               value={tag}
+                            />
+                            <button className='bg-green-500 py-2 font-semibold' onClick={initializeIMA}> Start</button>
+                            
+                        </div>
+
+
                       <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}  autoPlay  >
                             <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
                                   <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} 
                                    
                                    />
-                                    <CurrentSource
+                                     <CurrentSource
                                         style={{
                                           position: "absolute",
                                           left: 20,
@@ -228,11 +243,7 @@ function App() {
                                      </Player.Controls>
                                            <Player.LoadingIndicator
                                                 className='flex w-full h-full justify-center items-center bg-black text-white font-semibold'
-                                                   onLoad={(e) => {
-                                            // we fake an error here every time there is progress
-                                                     console.log(e,"event ii")
-                                          
-                                                      }}
+                                         
                                               >
                                                 Loading...
                                      </Player.LoadingIndicator>
@@ -258,7 +269,7 @@ function App() {
 
                       </Player.Root>
 
-
+                     
 
                   </div>
                 )
