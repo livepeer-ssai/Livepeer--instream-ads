@@ -91,4 +91,7 @@ or you can load it programatically
 
 ```
 
-  The above snippet is a basic player. More functionalities and customization can be added to it .You can refer to [example]("")
+  The above snippet is a basic player. More functionalities and customization can be added to it .You can refer to [example](https://github.com/livepeer-ssai/Livepeer--instream-ads/blob/master/src/App.jsx) on how to add loading and error components.
+
+
+
