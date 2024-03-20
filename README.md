@@ -237,12 +237,23 @@ When ads are loaded successfully, the ima.AdsLoader emits an ADS_MANAGER_LOADED 
               };
 
 ```
-###  Listen for AdsManager events
+###  Listen for AdsManager events and error handling
 The AdsManager also fires several events that must be handled. These events are used to track state changes, trigger play and pause on the content video, and register errors.
 
+```js        // onAdsManagerLoaded function block,listen for events
 
+             adsManager.addEventListener(
+                  google.ima.AdEvent.Type.AD_ERROR,
+                  onAdError);
+             ....
 
-
+            
+            function onAdError(adErrorEvent) {
+              if(adsManager) {
+                adsManager.destroy();
+                }
+             }
+```
 
 
 
