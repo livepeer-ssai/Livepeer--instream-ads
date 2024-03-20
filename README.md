@@ -235,6 +235,9 @@ When ads are loaded successfully, the ima.AdsLoader emits an ADS_MANAGER_LOADED 
               };
 
 ```
+###  Listen for AdsManager events
+The AdsManager also fires several events that must be handled. These events are used to track state changes, trigger play and pause on the content video, and register errors.
+
 
 
 
