@@ -66,7 +66,7 @@ or you can load it programatically
               <Player.Root src={getSrc("https://storage.googleapis.com/interactive-media-ads/media/android.webm")}  
                    className="relative" >
                     <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
-                          <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} />
+                          <Player.Video title="Live stream" className="h-full w-full"/>
                               <Player.Controls className="flex items-center justify-center">
                                <Player.PlayPauseTrigger className="w-10 h-10 hover:scale-105 flex-shrink-0"
                                   >
@@ -90,3 +90,5 @@ or you can load it programatically
 
 
 ```
+
+  The above snippet is a basic player. More functionalities and customization can be added to it .You can refer to [example]("")
