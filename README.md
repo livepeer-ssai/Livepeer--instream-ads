@@ -95,3 +95,81 @@ or you can load it programatically
 
 
 
+
+### Create ad display container
+The IMA SDK uses a dedicated ad container element for displaying both ads and ad-related UI elements. This container must be sized to overlay the video element from the top-left corner. The height and width of the ads placed in this container are set by the adsManager object, so you don't need to set these values manually.
+
+
+```js
+        <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
+            <Player.Video title="Live stream" className="h-full w-full" />
+                  <div id="ad-container" className={`absolute top-0`}></div>
+       </Player.Container>
+
+```
+
+### Reference the video and ad-container element with a variable
+
+```js
+      const videoRef = useRef(null);
+      const adPlaybackRef = useRef(null);
+
+
+     ......
+
+      <Player.Container className="h-1/2 w-1/2 overflow-hidden bg-gray-950 relative">
+            <Player.Video title="Live stream" className="h-full w-full" ref={videoRef} />
+                  <div id="ad-container" ref={adPlaybackRef}   className={`absolute top-0`}></div>
+       </Player.Container>
+
+      
+
+```
+
+###  Initialize the AdsLoader and make an ads request
+  In order to request a set of ads, create an ima.AdsLoader instance. This instance takes an AdDisplayContainer object as an input and can be used to process ima.AdsRequest objects associated with a specified ad tag URL.
+
+  As a best practice, only maintain one instance of ima.AdsLoader for the entire lifecycle of a page.
+  
+```js
+        const initializeIMA = () => {
+
+              videoElement = videoRef.current;
+              adContainer = adPlaybackRef.current;
+           
+              adDisplayContainer = new google.ima.AdDisplayContainer(adContainer,videoElement);
+              
+              adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+    
+              adsLoader.addEventListener(
+                 google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+                 onAdsManagerLoaded,
+                false);
+          
+              adsLoader.addEventListener(
+                google.ima.AdErrorEvent.Type.AD_ERROR,
+                onAdError,
+                false);
+        
+  
+              videoElement.addEventListener('ended', function() {
+                adsLoader.contentComplete();
+              });
+              var adsRequest = new google.ima.AdsRequest();
+    
+          
+             adsRequest.adTagUrl =tag
+          
+
+            adsRequest.linearAdSlotWidth = videoElement.clientWidth;
+            adsRequest.linearAdSlotHeight = videoElement.clientHeight;
+            adsRequest.nonLinearAdSlotWidth = videoElement.clientWidth;
+            adsRequest.nonLinearAdSlotHeight = videoElement.clientHeight / 3;
+
+             adsLoader.requestAds(adsRequest);
+           };
+
+```
+
+
+
