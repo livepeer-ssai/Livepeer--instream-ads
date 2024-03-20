@@ -172,4 +172,73 @@ The IMA SDK uses a dedicated ad container element for displaying both ads and ad
 ```
 
 
+### Listen for AdsLoader events
+
+When ads are loaded successfully, the ima.AdsLoader emits an ADS_MANAGER_LOADED event. Parse the event passed to the callback to initialize the AdsManager object. The AdsManager loads the individual ads as defined by the response to the ad tag URL.
+
+```js
+
+       function onAdsManagerLoaded(adsManagerLoadedEvent) {
+             
+               var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+               adsRenderingSettings.enablePreloading = true;
+               adsManager = adsManagerLoadedEvent.getAdsManager(
+                    videoElement,adsRenderingSettings);
+    
+              adsManager.addEventListener(
+                google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED,
+                onContentPauseRequested);
+               adsManager.addEventListener(
+                google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED,
+                onContentResumeRequested);
+    
+              adsManager.addEventListener(
+                google.ima.AdEvent.Type.LOADED,
+               onAdLoaded);
+               adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE,()=>setAdsLoaded(false) || setAdsCompleted(true));
+
+
+               adsManager.addEventListener(
+                google.ima.AdEvent.Type.AD_ERROR,
+                onAdError);
+             }
+
+```
+
+
+### Start the AdsManager
+ To start ad playback, you need to start the AdsManager. Note to fully support mobile browsers, this should be triggered by a user interaction.
+
+```js
+         const loadAds = () => {
+               videoElement = videoRef.current;
+          
+               const manager = adevent.getAdsManager(
+                videoElement);
+    
+               videoElement?.load();
+                
+               adContainer.initialize();
+               var width = videoElement?.clientWidth;
+               var height = videoElement?.clientHeight;
+               try {
+                    manager.init(width, height, google.ima.ViewMode.NORMAL);
+             
+                    manager.start();
+          
+                  } catch (adError) {
+                
+               
+                       console.log("AdsManager could not be started");
+                       videoElement?.play();
+                 }
+              };
+
+```
+
+
+
+
+
+
 
